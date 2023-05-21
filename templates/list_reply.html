@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% block title %}Список откликов{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <form method="get">
+            {{ filter.form }}
+            <input type="submit" value="Найти">
+        </form>
+        {% for advert in filter.qs %}
+            {% for reply in advert.reply_set.all %}
+                <div class="row justify-content-center mt-3">
+                    <div class="col-8 text-center m-2">
+                        <div class="card shadow-lg">
+                            <h4 class="mt-3">Автор отклика: {{ reply.author }}</h4>
+                            <h4 class="mt-3">Отклик на объявление: {{ reply.advert }}</h4>
+                            <p class="mt-3">Текст отклика: {{ reply.text }}</p>
+                            <div class="btn-group justify-content-end">
+                                {% if not reply.advert.accepted_reply %}
+                                    <a class="m-2" href="{% url 'accept_reply' reply.advert.pk reply.pk %}">
+                                        <button class="btn btn-info">Принять отклик</button>
+                                    </a>
+                                {% endif %}
+                                <a class="m-2" href="{% url 'reply_delete' reply.pk %}">
+                                    <button class="btn btn-danger ">Удалить отклик</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

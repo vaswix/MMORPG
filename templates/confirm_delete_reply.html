@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% block title %}Список откликов{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <form method="post">
+            {% csrf_token %}
+            <p>Вы действительно хотите удалить этот отклик?</p>
+            {{ form }}
+            <input type="submit" value="Удалить">
+        </form>
+    </div>
+{% endblock %}

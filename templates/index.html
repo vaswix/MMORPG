@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+{% block title %}Объявления{% endblock %}
+{% block content %}
+
+    <div class="container-fluid">
+        <h2 class="text-center">Объявления</h2>
+        {% for advert in object_list %}
+            <div class="row justify-content-center m-3">
+                <div class="col-6 text-center shadow-lg p-0" style="border-radius: 20px">
+                    <div class="card">
+                        {% thumbnail advert.image "400x400" padding=True as im %}
+                            <a href="{% url 'advert_detail' advert.pk %}">
+                                <img class="img-fluid" src="{{ im.url }}" width="{{ im.width }}"
+                                     height="{{ im.height }}" alt="advert-image">
+                            </a>
+                        {% endthumbnail %}
+                        <div class="card-body">
+                            <div class="card-title">
+                                <p>Автор: {{ advert.author }}</p>
+                                <p>Категория: {{ advert.category }}</p>
+                            </div>
+                            <div class="card-title">
+                                <p>{{ advert.title }}</p>
+                            </div>
+                            <div class="card-text">
+                                <p>{{ advert.text }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

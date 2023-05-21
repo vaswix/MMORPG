@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+    <div class="container" id="main">
+        <form id="email-verify" method="post">
+            <label>Введите email:
+                {% csrf_token %}
+                <input type="email" id="email-confirm" placeholder="example@gmail.com">
+            </label>
+            <button type="submit">Отправить</button>
+        </form>
+    </div>
+
+    <script>
+        const emailForm = document.getElementById('email-verify')
+        const container = document.getElementById('main')
+        let emailUser = document.getElementById('email-confirm')
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function handleForm(event) {
+            event.preventDefault()
+            let email = document.getElementById('email-confirm')
+            email.disabled = true
+            let data = {'email': email.value}
+            fetch('http://127.0.0.1:8000/account/confirmation/send_one_time_code/', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(data)
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+
+                .then(function (json) {
+                    if (json['status'] === 'ok') {
+                        if (!document.getElementById('verify-code')) {
+                            let br = document.createElement('br')
+                            let newForm = document.createElement('form')
+                            let newInpt = document.createElement('input')
+                            let newBtn = document.createElement('button')
+                            let newLabel = document.createElement('label')
+
+                            newForm.setAttribute('id', 'verify-code')
+
+                            newInpt.setAttribute('placeholder', 'Введите код с почты')
+                            newInpt.setAttribute('id', 'input-code')
+
+                            newBtn.setAttribute('id', 'confirm-code')
+
+                            newBtn.appendChild(document.createTextNode('Отправить код'))
+                            newLabel.appendChild(document.createTextNode('Введите код: '))
+                            newLabel.appendChild(newInpt)
+
+
+                            newForm.append(newLabel, newBtn)
+
+
+                            container.appendChild(br)
+                            container.appendChild(newForm)
+
+                            let confirm_code = document.getElementById('confirm-code')
+                            confirm_code.addEventListener('click', valid_code)
+                        }
+                    }
+                })
+        }
+
+        const valid_code = (event) => {
+            console.log(emailUser.value)
+            event.preventDefault()
+            let oneTimeCode = document.getElementById('input-code');
+            oneTimeCode.disabled = true
+            let data_user = {
+                'email': emailUser.value,
+                'one_time_code': oneTimeCode.value,
+            }
+            fetch('http://127.0.0.1:8000/account/confirmation/valid_code/', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(data_user)
+            })
+                .then(response => {
+                    return response.json()
+                })
+
+                .then(json => {
+                    let verifyCode = document.getElementById('verify-code')
+
+                    if (json['status'] === 'ok') {
+                        let newDiv = document.createElement('div')
+
+                        newDiv.innerHTML = `
+                            <form method="post">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <input type="submit" value="Зарегистрироваться"></form>
+                            `
+
+                        container.appendChild(newDiv)
+                        emailForm.remove()
+                        verifyCode.remove()
+
+                        let idEmail = document.getElementById('id_email')
+                        idEmail.disabled = true
+                        idEmail.value = emailUser.value
+
+                        let username = document.getElementById('id_username')
+                        username.autofocus
+                    } else {
+                        oneTimeCode.disabled = false
+
+                        if (!document.getElementById('error-text')) {
+                            let errorText = document.createElement('p')
+                            errorText.setAttribute('id', 'error-text')
+                            errorText.appendChild(document.createTextNode('Неверный код'))
+                            errorText.style.color = 'red'
+                            verifyCode.before(errorText)
+                            setTimeout(function () {
+                                errorText.remove()
+                            }, 3000)
+                        }
+                    }
+                })
+        }
+
+        emailForm.addEventListener('submit', handleForm)
+    </script>
+
+{% endblock %}

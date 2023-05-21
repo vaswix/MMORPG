@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}Подтвердите почту{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="card mt-3 text-center">
+                    <div class="card-img">
+                        {% thumbnail object.image "600x600" padding=True as im %}
+                            <img class="img-fluid" src="{{ im.url }}" width="{{ im.width }}"
+                                 height="{{ im.height }}" alt="advert-image">
+                        {% endthumbnail %}
+                    </div>
+                <div class="card-text mt-3">
+                    <h4>Автор: {{ object.author }}</h4>
+                    <h4>Заголовок: {{ object.title }}</h4>
+                    <p>{{ object.text }}</p>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="row justify-content-center text-center mt-3">
+                <div class="form-reply mt-3 mb-3">
+                    <h1>Оставить отклик</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Отправить">
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

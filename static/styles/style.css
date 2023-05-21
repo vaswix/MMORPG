@@ -1,0 +1,17 @@
+body {
+    font: 16px Helvetica, Arial, sans-serif
+}
+
+.page-item {
+    background: red;
+    color: red
+}
+
+.product-count {
+    font-size: 13px;
+    position: absolute;
+    top: 20px;
+    padding: 0 10px;
+    background: orangered;
+    border-radius: 20px;
+}
