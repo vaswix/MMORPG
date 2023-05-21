@@ -2,6 +2,7 @@ import json
 import random
 
 from django.contrib.auth import login
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
@@ -30,15 +31,14 @@ def send_one_time_code(request):
     email = data.get('email')
     if email is not None:
         one_time_code = random.randint(1000, 9999)
-        print(one_time_code)
         OneTimeCode.objects.create(code=one_time_code, email=data['email'])
 
-        # send_mail(
-        #     subject=f'Подтверждение почты',
-        #     message=f'Код подтверждения вашей почты: {one_time_code}',
-        #     from_email='Lack10000@yandex.ru',
-        #     recipient_list=[email],
-        # )
+        send_mail(
+            subject=f'Подтверждение почты',
+            message=f'Код подтверждения вашей почты: {one_time_code}',
+            from_email='Lack10000@yandex.ru',
+            recipient_list=[email],
+        )
 
         return JsonResponse({'status': 'ok'})
     else:
